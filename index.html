@@ -100,20 +100,30 @@
   .file-name { font-weight: 600; font-size: 14px; word-break: break-all; }
   .file-kind { font-size: 11px; color: #8892a0; margin-top: 2px; }
   .status-badge {
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     white-space: nowrap;
     flex-shrink: 0;
+    border: 2px solid transparent;
+    min-width: 90px;
+    text-align: center;
   }
-  .status-ok { background: #d4edda; color: #155724; }
-  .status-ng { background: #f8d7da; color: #721c24; }
-  .status-warn { background: #fff3cd; color: #856404; }
-  .status-loading { background: #e2e3e5; color: #383d41; }
+  .status-ok { background: #16a34a; color: #fff; border-color: #15803d; }
+  .status-ng { background: #dc2626; color: #fff; border-color: #991b1b; }
+  .status-warn { background: #f59e0b; color: #fff; border-color: #b45309; }
+  .status-loading { background: #e2e3e5; color: #383d41; border-color: #cbd0d6; font-size: 12px; padding: 8px 14px; }
+
+  /* 結果カードに全体のステータスに応じた左ボーダーを付ける */
+  .result-card.card-ok { border-left: 6px solid #16a34a; }
+  .result-card.card-ng { border-left: 6px solid #dc2626; }
+  .result-card.card-warn { border-left: 6px solid #f59e0b; }
+
   .check-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .check-table th, .check-table td {
-    padding: 10px 14px;
+    padding: 12px 14px;
     text-align: left;
     border-bottom: 1px solid #eef0f3;
     vertical-align: top;
@@ -125,11 +135,36 @@
     width: 170px;
   }
   .check-table tr:last-child th, .check-table tr:last-child td { border-bottom: none; }
-  .check-ok { color: #155724; }
-  .check-ng { color: #c53030; font-weight: 600; }
-  .check-warn { color: #b7791f; }
+  /* 各行をステータスに応じて背景色で強調 */
+  .check-table tr.row-ng td { background: #fef2f2; }
+  .check-table tr.row-warn td { background: #fffbeb; }
+  .check-table tr.row-ok td { background: #f0fdf4; }
+  .check-table tr.row-info td { background: #fff; }
+
+  .check-ok { color: #1a1a1a; }
+  .check-ng { color: #b91c1c; font-weight: 700; }
+  .check-warn { color: #b45309; font-weight: 600; }
   .check-info { color: #4a5568; }
-  .check-icon { margin-right: 6px; font-weight: 700; display: inline-block; min-width: 14px; }
+
+  /* アイコンを◯◯✕!●の色付き円バッジに */
+  .check-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 8px;
+    vertical-align: middle;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .check-icon.icon-ok { background: #16a34a; }
+  .check-icon.icon-ng { background: #dc2626; }
+  .check-icon.icon-warn { background: #f59e0b; }
+  .check-icon.icon-info { background: #94a3b8; }
   details { margin-top: 20px; font-size: 13px; }
   summary { cursor: pointer; color: #4a5568; padding: 6px 0; }
   .spec-table {
@@ -250,16 +285,24 @@ function updateCard(card, status, statusText, rows) {
   const badge = card.querySelector('.status-badge');
   badge.className = 'status-badge status-' + status;
   badge.textContent = statusText;
+
+  // カード全体にステータスクラスを付与(左ボーダー用)
+  card.classList.remove('card-ok','card-ng','card-warn');
+  card.classList.add('card-' + status);
+
   const tbody = card.querySelector('tbody');
-  tbody.innerHTML = rows.map(r => `
-    <tr>
+  tbody.innerHTML = rows.map(r => {
+    const iconChar = r.status==='ok'?'✓':r.status==='ng'?'✕':r.status==='warn'?'!':'・';
+    return `
+    <tr class="row-${r.status}">
       <th>${r.label}</th>
       <td class="check-${r.status}">
-        <span class="check-icon">${r.status==='ok'?'✓':r.status==='ng'?'✕':r.status==='warn'?'!':'・'}</span>
-        ${r.value}${r.note ? ` <span style="color:#8892a0;font-size:12px;">(${r.note})</span>`:''}
+        <span class="check-icon icon-${r.status}">${iconChar}</span>
+        ${r.value}${r.note ? ` <span style="color:#8892a0;font-size:12px;font-weight:normal;">(${r.note})</span>`:''}
       </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 }
 
 // サムネイルをセット(img/canvas要素と、右下のバッジ文言)
