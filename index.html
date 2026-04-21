@@ -61,6 +61,8 @@
     align-items: center;
     gap: 14px;
   }
+  
+  /* サムネイル部分にホバーアクションとクリックを促すスタイルを追加 */
   .thumb {
     width: 120px;
     height: 68px;
@@ -72,7 +74,25 @@
     align-items: center;
     justify-content: center;
     position: relative;
+    cursor: pointer;
+    transition: opacity 0.2s;
   }
+  .thumb::after {
+    content: "🔍 再生・拡大";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .thumb:hover::after { opacity: 1; }
+  
   .thumb img, .thumb canvas {
     width: 100%;
     height: 100%;
@@ -116,7 +136,6 @@
   .status-warn { background: #f59e0b; color: #fff; border-color: #b45309; }
   .status-loading { background: #e2e3e5; color: #383d41; border-color: #cbd0d6; font-size: 12px; padding: 8px 14px; }
 
-  /* 結果カードに全体のステータスに応じた左ボーダーを付ける */
   .result-card.card-ok { border-left: 6px solid #16a34a; }
   .result-card.card-ng { border-left: 6px solid #dc2626; }
   .result-card.card-warn { border-left: 6px solid #f59e0b; }
@@ -128,14 +147,8 @@
     border-bottom: 1px solid #eef0f3;
     vertical-align: top;
   }
-  .check-table th {
-    background: #fafbfc;
-    font-weight: 600;
-    color: #4a5568;
-    width: 170px;
-  }
+  .check-table th { background: #fafbfc; font-weight: 600; color: #4a5568; width: 170px; }
   .check-table tr:last-child th, .check-table tr:last-child td { border-bottom: none; }
-  /* 各行をステータスに応じて背景色で強調 */
   .check-table tr.row-ng td { background: #fef2f2; }
   .check-table tr.row-warn td { background: #fffbeb; }
   .check-table tr.row-ok td { background: #f0fdf4; }
@@ -145,85 +158,64 @@
   .check-warn { color: #b45309; font-weight: 600; }
   .check-info { color: #1a1a1a; font-weight: 600; }
 
-  /* アイコンを◯◯✕!●の色付き円バッジに */
   .check-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    font-size: 12px;
-    font-weight: 700;
-    margin-right: 8px;
-    vertical-align: middle;
-    color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; border-radius: 50%;
+    font-size: 12px; font-weight: 700; margin-right: 8px;
+    vertical-align: middle; color: #fff;
   }
   .check-icon.icon-ok { background: #16a34a; }
   .check-icon.icon-ng { background: #dc2626; }
   .check-icon.icon-warn { background: #f59e0b; }
   .check-icon.icon-info { background: #94a3b8; }
 
-  /* NG理由ボックス */
-  .reason-box {
-    padding: 14px 18px 16px;
-    background: #fafbfc;
-    border-top: 1px solid #e1e3e6;
-  }
-  .reason-header {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 10px;
-  }
-  .reason-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: #1a1a1a;
-    letter-spacing: 0.02em;
-  }
+  .reason-box { padding: 14px 18px 16px; background: #fafbfc; border-top: 1px solid #e1e3e6; }
+  .reason-header { display: flex; justify-content: flex-start; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .reason-title { font-size: 15px; font-weight: 700; color: #1a1a1a; letter-spacing: 0.02em; }
   .copy-btn {
-    padding: 6px 14px;
-    background: #1a1a1a;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s;
-    font-family: inherit;
+    padding: 6px 14px; background: #1a1a1a; color: #fff; border: none; border-radius: 4px;
+    font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit;
   }
   .copy-btn:hover { background: #333; }
   .copy-btn.copied { background: #16a34a; }
   .reason-text {
-    background: #fff;
-    border: 1px solid #e1e3e6;
-    border-radius: 4px;
-    padding: 12px 14px;
-    font-size: 13px;
-    line-height: 1.7;
-    color: #1a1a1a;
-    white-space: pre-wrap;
-    word-break: break-all;
-    font-family: inherit;
-    margin: 0;
+    background: #fff; border: 1px solid #e1e3e6; border-radius: 4px; padding: 12px 14px;
+    font-size: 13px; line-height: 1.7; color: #1a1a1a; white-space: pre-wrap; word-break: break-all;
+    font-family: inherit; margin: 0;
   }
   details { margin-top: 20px; font-size: 13px; }
   summary { cursor: pointer; color: #4a5568; padding: 6px 0; }
-  .spec-table {
-    margin-top: 10px;
-    font-size: 12px;
-    width: 100%;
-    border-collapse: collapse;
-  }
-  .spec-table th, .spec-table td {
-    padding: 6px 10px;
-    border: 1px solid #e1e3e6;
-    text-align: left;
-  }
+  .spec-table { margin-top: 10px; font-size: 12px; width: 100%; border-collapse: collapse; }
+  .spec-table th, .spec-table td { padding: 6px 10px; border: 1px solid #e1e3e6; text-align: left; }
   .spec-table th { background: #fafbfc; font-weight: 600; }
+
+  /* プレビュー用モーダルのスタイル */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    display: none; z-index: 9999; overflow: auto;
+  }
+  .modal-overlay.active { display: block; }
+  .modal-wrapper {
+    display: flex; justify-content: center; align-items: flex-start;
+    min-height: 100%; padding: 40px;
+  }
+  .modal-container {
+    position: relative; display: inline-block; background: #000;
+  }
+  .modal-content img, .modal-content video {
+    display: block;
+    /* max-width等を指定せず、元サイズで表示させる */
+  }
+  .modal-close {
+    position: absolute; top: -16px; right: -16px;
+    background: #1a1a1a; color: #fff; border: 2px solid #fff;
+    width: 32px; height: 32px; border-radius: 50%;
+    font-size: 16px; font-weight: bold;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 10000; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+  .modal-close:hover { background: #dc2626; }
 </style>
 </head>
 <body>
@@ -269,19 +261,28 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="previewModal">
+  <div class="modal-wrapper">
+    <div class="modal-container">
+      <div class="modal-close" id="modalClose">✕</div>
+      <div class="modal-content" id="modalContent"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const VIDEO_SPECS = {
-  maxFileSize: 100 * 1024 * 1024,          // 規定: 100MB以下
+  maxFileSize: 100 * 1024 * 1024,
   width: 1920,
   height: 1080,
-  validFps: [29.97, 30],                   // 規定: 29.97fps または 30fps
-  fpsTolerance: 0.1,                       // fps計測の丸め誤差許容値
-  recommendedBitrate: 4 * 1000 * 1000,     // 推奨: 4Mbps以上
+  validFps: [29.97, 30],
+  fpsTolerance: 0.1,
+  recommendedBitrate: 4 * 1000 * 1000,
 };
 
 const IMAGE_SPECS = {
-  maxFileSize: 600 * 1024,      // 規定: 600KB以下
-  tolerableFileSize: 650 * 1024, // 許容範囲: 601〜650KB (OK扱い)
+  maxFileSize: 600 * 1024,
+  tolerableFileSize: 650 * 1024,
   width: 1920,
   height: 1080,
 };
@@ -289,6 +290,51 @@ const IMAGE_SPECS = {
 const dropzone = document.getElementById('dropzone');
 const fileInput = document.getElementById('fileInput');
 const results = document.getElementById('results');
+
+// === プレビュー用モーダル機能 ===
+const previewModal = document.getElementById('previewModal');
+const modalContent = document.getElementById('modalContent');
+const modalClose = document.getElementById('modalClose');
+
+function openPreviewModal(file, kind) {
+  modalContent.innerHTML = ''; // クリア
+  const url = URL.createObjectURL(file);
+
+  if (kind === 'image') {
+    const img = document.createElement('img');
+    img.src = url;
+    modalContent.appendChild(img);
+  } else if (kind === 'video') {
+    const video = document.createElement('video');
+    video.src = url;
+    video.controls = true;
+    video.autoplay = true;
+    modalContent.appendChild(video);
+  }
+
+  previewModal.classList.add('active');
+  previewModal.dataset.blobUrl = url; // 閉じる時に解放するため保持
+}
+
+function closePreviewModal() {
+  previewModal.classList.remove('active');
+  modalContent.innerHTML = ''; // 破棄して動画の再生を止める
+  const url = previewModal.dataset.blobUrl;
+  if (url) {
+    URL.revokeObjectURL(url);
+    delete previewModal.dataset.blobUrl;
+  }
+}
+
+modalClose.addEventListener('click', closePreviewModal);
+previewModal.addEventListener('click', (e) => {
+  // 背景クリックで閉じる
+  if (e.target.classList.contains('modal-wrapper') || e.target.classList.contains('modal-overlay')) {
+    closePreviewModal();
+  }
+});
+// =================================
+
 
 ['dragenter','dragover'].forEach(ev => {
   dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.add('dragover'); });
@@ -303,7 +349,7 @@ dropzone.addEventListener('drop', e => {
 dropzone.addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', e => {
   handleFiles(Array.from(e.target.files));
-  e.target.value = ''; // 同じファイルを再選択しても change が発火するようにリセット
+  e.target.value = ''; 
 });
 
 function formatBytes(bytes) {
@@ -312,7 +358,6 @@ function formatBytes(bytes) {
   return (bytes/1024/1024).toFixed(2) + ' MB';
 }
 
-// HTML特殊文字をエスケープ (XSS対策)
 function escapeHtml(str) {
   if (str == null) return '';
   return String(str)
@@ -328,7 +373,7 @@ function createResultCard(fileName, kind) {
   card.className = 'result-card';
   card.innerHTML = `
     <div class="result-header">
-      <div class="thumb"><div class="thumb-placeholder">読み込み中...</div></div>
+      <div class="thumb" title="クリックで再生・原寸大表示"><div class="thumb-placeholder">読み込み中...</div></div>
       <div class="file-info">
         <div class="file-name">${escapeHtml(fileName)}</div>
         <div class="file-kind">${escapeHtml(kind)}</div>
@@ -349,7 +394,6 @@ function updateCard(card, status, statusText, rows, fileName) {
   badge.className = 'status-badge status-' + status;
   badge.textContent = statusText;
 
-  // カード全体にステータスクラスを付与(左ボーダー用)+ data属性(並び替え用)
   card.classList.remove('card-ok','card-ng','card-warn');
   card.classList.add('card-' + status);
   card.dataset.status = status;
@@ -365,14 +409,10 @@ function updateCard(card, status, statusText, rows, fileName) {
     </tr>
   `).join('');
 
-  // NG理由ボックスを組み立て
   renderReasonBox(card, rows, fileName);
-
-  // ステータス順でカードを並び替え(NG → 要確認 → OK)
   sortResultCards();
 }
 
-// ステータスに応じて結果カードを並べ替える(NG → 要確認 → OK → チェック中)
 function sortResultCards() {
   const order = { ng: 0, warn: 1, ok: 2, loading: 3 };
   const cards = Array.from(results.querySelectorAll('.result-card'));
@@ -384,7 +424,6 @@ function sortResultCards() {
   cards.forEach(card => results.appendChild(card));
 }
 
-// NG項目がある場合のみ入稿者向けのテキストを生成(要確認のみ/OKのみでは非表示)
 function renderReasonBox(card, rows, fileName) {
   const reasonBox = card.querySelector('.reason-box');
   const ngRows = rows.filter(r => r.status === 'ng');
@@ -395,16 +434,10 @@ function renderReasonBox(card, rows, fileName) {
     return;
   }
 
-  // NG行のnoteから「規定: XXX / (補足)」パターンを抽出して規定値だけ取り出す
-  // 例: "規定: mp4形式" → "mp4形式"
-  // 例: "規定: 1920×1080" → "1920×1080"
   const buildLine = (r) => {
     let regulation = '';
     if (r.note) {
-      // 「規定: 」プレフィックスを除去し、「 / 」以降の補足を除去
-      regulation = r.note
-        .replace(/^規定:\s*/, '')
-        .replace(/\s*\/.*$/, '');
+      regulation = r.note.replace(/^規定:\s*/, '').replace(/\s*\/.*$/, '');
     }
     return `・${r.label}:${r.value}(規定:${regulation || r.note || '-'})`;
   };
@@ -442,7 +475,6 @@ function renderReasonBox(card, rows, fileName) {
         copyBtn.classList.remove('copied');
       }, 2000);
     }).catch(() => {
-      // フォールバック:テキストエリア経由
       const ta = document.createElement('textarea');
       ta.value = reasonText;
       document.body.appendChild(ta);
@@ -455,7 +487,6 @@ function renderReasonBox(card, rows, fileName) {
   });
 }
 
-// サムネイルをセット(img/canvas要素と、右下のバッジ文言)
 function setThumbnail(card, element, badgeText) {
   const thumb = card.querySelector('.thumb');
   thumb.innerHTML = '';
@@ -496,15 +527,20 @@ const KIND_LABELS = {
 
 async function handleFiles(files) {
   if (!files || files.length === 0) return;
-
-  // 新規ファイル投入時は前回の結果を全てクリア
   results.innerHTML = '';
 
   for (const file of files) {
     const kind = detectKind(file);
     const card = createResultCard(file.name, KIND_LABELS[kind]);
 
-    // サムネイル生成を並行で開始(チェック結果表示をブロックしない)
+    // 追加: サムネイルクリックでプレビューを開くイベントを登録
+    const thumbEl = card.querySelector('.thumb');
+    thumbEl.addEventListener('click', () => {
+      if (kind === 'image' || kind === 'video') {
+        openPreviewModal(file, kind);
+      }
+    });
+
     if (kind === 'image') {
       generateImageThumbnail(file, card).catch(() => setThumbnailPlaceholder(card, '読み込み失敗'));
     } else if (kind === 'video') {
@@ -535,7 +571,6 @@ async function handleFiles(files) {
   }
 }
 
-// ===== サムネイル生成 =====
 async function generateImageThumbnail(file, card) {
   const url = URL.createObjectURL(file);
   try {
@@ -547,9 +582,6 @@ async function generateImageThumbnail(file, card) {
       i.src = url;
     });
     setThumbnail(card, img, 'IMG');
-    // img要素はDOMに保持されるので、解放はimg要素自身のloadイベント後(既にsrcがセット済み)で問題ない
-    // ブラウザはBlob URLをdocument ライフサイクルに紐付けて管理するため、個別revokeは不要だが、
-    // 念のためロード完了後に解放してもimgは表示され続ける
     URL.revokeObjectURL(url);
   } catch (e) {
     URL.revokeObjectURL(url);
@@ -566,7 +598,6 @@ async function generateVideoThumbnail(file, card) {
   video.src = url;
 
   try {
-    // メタデータ読み込み
     await new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('video metadata timeout')), 10000);
       const onLoaded = () => { cleanup(); resolve(); };
@@ -580,7 +611,6 @@ async function generateVideoThumbnail(file, card) {
       video.addEventListener('error', onError);
     });
 
-    // 最初のフレーム寄り(0.1秒)へシーク
     await new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('seek timeout')), 10000);
       const onSeeked = () => { cleanup(); resolve(); };
@@ -600,7 +630,6 @@ async function generateVideoThumbnail(file, card) {
       }
     });
 
-    // Canvasに描画
     const w = 240;
     const h = Math.round((video.videoHeight / video.videoWidth) * w) || 135;
     const canvas = document.createElement('canvas');
@@ -610,12 +639,11 @@ async function generateVideoThumbnail(file, card) {
     setThumbnail(card, canvas, 'VIDEO');
   } finally {
     video.removeAttribute('src');
-    video.load();  // バッファ解放
+    video.load();
     URL.revokeObjectURL(url);
   }
 }
 
-// ===== mp4 コンテナを直接パース =====
 async function parseMp4Metadata(file) {
   const HEAD_SIZE = Math.min(file.size, 8 * 1024 * 1024);
   const TAIL_SIZE = Math.min(file.size, 4 * 1024 * 1024);
@@ -785,7 +813,6 @@ function judgeAudioCodec(code) {
   return { status: 'warn', value: code };
 }
 
-// ===== 動画チェック =====
 async function checkVideo(file) {
   const rows = [];
   const ext = file.name.split('.').pop().toLowerCase();
@@ -819,8 +846,8 @@ async function checkVideo(file) {
         height: fallback.height,
         videoCodec: null,
         audioCodec: null,
-        videoSampleCount: null,      // フォールバック時はサンプル数取得不可
-        videoTrackDurationSec: null, // 同上
+        videoSampleCount: null,
+        videoTrackDurationSec: null,
       };
     } catch (e2) {
       rows.push({ label: '動画解析', status: 'warn', value: '解析できませんでした', note: (parseError?.message || '') + (e2?.message ? ' / ' + e2.message : '') });
@@ -852,7 +879,6 @@ async function checkVideo(file) {
   if (meta.durationSec) {
     const bitrate = (file.size * 8) / meta.durationSec;
     const bitrateMbps = bitrate / 1000000;
-    // 規定: 4Mbps推奨(4Mbps以上ないと綺麗に映らない)
     if (bitrate >= VIDEO_SPECS.recommendedBitrate) {
       rows.push({ label: 'ビットレート (推定)', status: 'ok', value: bitrateMbps.toFixed(2) + ' Mbps', note: '推奨: 4Mbps以上 / ファイルサイズと尺からの推定値' });
     } else {
@@ -912,7 +938,6 @@ function loadWithVideoElement(file) {
   });
 }
 
-// ===== 静止画チェック =====
 async function checkImage(file) {
   const rows = [];
   const ext = file.name.split('.').pop().toLowerCase();
@@ -931,7 +956,6 @@ async function checkImage(file) {
     rows.push({ label: 'ファイルサイズ', status: 'ng', value: formatBytes(file.size), note: '規定: 600KB以下' });
   }
 
-  // 解像度取得は失敗しうるので個別にtry/catchし、他の判定結果を残す
   const url = URL.createObjectURL(file);
   try {
     const size = await new Promise((resolve, reject) => {
