@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>入稿素材チェックツール</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+    background: #f2f3f5;
+    color: #1a1a1a;
+    padding: 24px;
+    min-height: 100vh;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 18px 24px;
+    border-radius: 8px 8px 0 0;
+  }
+  header h1 { font-size: 18px; font-weight: 600; letter-spacing: 0.05em; }
+  .main-card {
+    background: #fff;
+    border-radius: 0 0 8px 8px;
+    padding: 24px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+  .dropzone {
+    border: 2px dashed #b8bec7;
+    border-radius: 8px;
+    padding: 56px 24px;
+    text-align: center;
+    background: #fafbfc;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .dropzone:hover { border-color: #4a5568; background: #f2f4f7; }
+  .dropzone.dragover {
+    border-color: #1a1a1a;
+    background: #eef0f3;
+    transform: scale(1.01);
+  }
+  .dropzone-icon { font-size: 44px; margin-bottom: 14px; opacity: 0.5; }
+  .dropzone-text { font-size: 16px; color: #4a5568; margin-bottom: 6px; font-weight: 500; }
+  .dropzone-hint { font-size: 12px; color: #8892a0; line-height: 1.6; }
+  .dropzone input[type="file"] { display: none; }
+  .results { margin-top: 24px; }
+  .result-card {
+    background: #fff;
+    border: 1px solid #e1e3e6;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .result-header {
+    padding: 14px 18px;
+    background: #f7f8fa;
+    border-bottom: 1px solid #e1e3e6;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .thumb {
+    width: 120px;
+    height: 68px;
+    flex-shrink: 0;
+    background: #e1e3e6;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .thumb img, .thumb canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .thumb-placeholder {
+    font-size: 10px;
+    color: #8892a0;
+    text-align: center;
+    padding: 4px;
+  }
+  .thumb-badge {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-size: 10px;
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-weight: 600;
+  }
+  .file-info { flex: 1; min-width: 0; }
+  .file-name { font-weight: 600; font-size: 14px; word-break: break-all; }
+  .file-kind { font-size: 11px; color: #8892a0; margin-top: 2px; }
+  .status-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .status-ok { background: #d4edda; color: #155724; }
+  .status-ng { background: #f8d7da; color: #721c24; }
+  .status-warn { background: #fff3cd; color: #856404; }
+  .status-loading { background: #e2e3e5; color: #383d41; }
+  .check-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .check-table th, .check-table td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid #eef0f3;
+    vertical-align: top;
+  }
+  .check-table th {
+    background: #fafbfc;
+    font-weight: 600;
+    color: #4a5568;
+    width: 170px;
+  }
+  .check-table tr:last-child th, .check-table tr:last-child td { border-bottom: none; }
+  .check-ok { color: #155724; }
+  .check-ng { color: #c53030; font-weight: 600; }
+  .check-warn { color: #b7791f; }
+  .check-info { color: #4a5568; }
+  .check-icon { margin-right: 6px; font-weight: 700; display: inline-block; min-width: 14px; }
+  details { margin-top: 20px; font-size: 13px; }
+  summary { cursor: pointer; color: #4a5568; padding: 6px 0; }
+  .spec-table {
+    margin-top: 10px;
+    font-size: 12px;
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .spec-table th, .spec-table td {
+    padding: 6px 10px;
+    border: 1px solid #e1e3e6;
+    text-align: left;
+  }
+  .spec-table th { background: #fafbfc; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>入稿素材チェックツール</h1>
+  </header>
+  <div class="main-card">
+    <div class="dropzone" id="dropzone">
+      <div class="dropzone-icon">📁</div>
+      <div class="dropzone-text">ここにファイルをドラッグ&ドロップ</div>
+      <div class="dropzone-hint">
+        または クリックしてファイルを選択(複数可 / .mp4, .png, .jpg)<br>
+        ファイル種別は自動判定されます
+      </div>
+      <input type="file" id="fileInput" multiple accept=".mp4,.png,.jpg,.jpeg,video/*,image/*">
+    </div>
+
+    <div class="results" id="results"></div>
+
+    <details>
+      <summary>入稿規定の詳細を見る</summary>
+      <div style="padding:10px 0;">
+        <b>メイン動画入稿規定</b>
+        <table class="spec-table">
+          <tr><th>フォーマット</th><td>mp4形式</td></tr>
+          <tr><th>サイズ</th><td>1080p (W:1920 × H:1080)</td></tr>
+          <tr><th>長さ</th><td>1st Ads: 最大60秒(最低15秒) / 2nd/3rd Ads・エリア指定・Targeting・2nd/3rd Contents: 最大30秒(最低15秒) / シートベルト: 15秒以内</td></tr>
+          <tr><th>ファイルサイズ</th><td>最大100MB</td></tr>
+          <tr><th>映像コーデック</th><td>H.264</td></tr>
+          <tr><th>音声コーデック</th><td>AAC LC</td></tr>
+          <tr><th>フレームレート</th><td>29.97fps または 30fps</td></tr>
+          <tr><th>最大ビットレート</th><td>4Mbps推奨</td></tr>
+        </table>
+        <b style="display:block;margin-top:14px;">静止画入稿規定(2nd/3rd Contents静止画・Boarding Ads・エンドキャップ)</b>
+        <table class="spec-table">
+          <tr><th>フォーマット</th><td>png形式 または jpeg形式</td></tr>
+          <tr><th>サイズ</th><td>W:1920 × H:1080</td></tr>
+          <tr><th>ファイルサイズ</th><td>600KB以下</td></tr>
+        </table>
+      </div>
+    </details>
+  </div>
+</div>
+
+<script>
+const VIDEO_SPECS = {
+  maxFileSize: 100 * 1024 * 1024,
+  width: 1920,
+  height: 1080,
+  validFps: [29.97, 30],
+  fpsTolerance: 0.1,
+  recommendedBitrate: 4 * 1000 * 1000,
+};
+
+const IMAGE_SPECS = {
+  maxFileSize: 600 * 1024,
+  width: 1920,
+  height: 1080,
+};
+
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const results = document.getElementById('results');
+
+['dragenter','dragover'].forEach(ev => {
+  dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.add('dragover'); });
+});
+['dragleave','drop'].forEach(ev => {
+  dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.remove('dragover'); });
+});
+dropzone.addEventListener('drop', e => {
+  const files = Array.from(e.dataTransfer.files);
+  handleFiles(files);
+});
+dropzone.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => handleFiles(Array.from(e.target.files)));
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1024/1024).toFixed(2) + ' MB';
+}
+
+function createResultCard(fileName, kind) {
+  const card = document.createElement('div');
+  card.className = 'result-card';
+  card.innerHTML = `
+    <div class="result-header">
+      <div class="thumb"><div class="thumb-placeholder">読み込み中...</div></div>
+      <div class="file-info">
+        <div class="file-name">${fileName}</div>
+        <div class="file-kind">${kind}</div>
+      </div>
+      <span class="status-badge status-loading">チェック中...</span>
+    </div>
+    <table class="check-table"><tbody></tbody></table>
+  `;
+  results.insertBefore(card, results.firstChild);
+  return card;
+}
+
+function updateCard(card, status, statusText, rows) {
+  const badge = card.querySelector('.status-badge');
+  badge.className = 'status-badge status-' + status;
+  badge.textContent = statusText;
+  const tbody = card.querySelector('tbody');
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <th>${r.label}</th>
+      <td class="check-${r.status}">
+        <span class="check-icon">${r.status==='ok'?'✓':r.status==='ng'?'✕':r.status==='warn'?'!':'・'}</span>
+        ${r.value}${r.note ? ` <span style="color:#8892a0;font-size:12px;">(${r.note})</span>`:''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+// サムネイルをセット(img/canvas要素と、右下のバッジ文言)
+function setThumbnail(card, element, badgeText) {
+  const thumb = card.querySelector('.thumb');
+  thumb.innerHTML = '';
+  thumb.appendChild(element);
+  if (badgeText) {
+    const badge = document.createElement('span');
+    badge.className = 'thumb-badge';
+    badge.textContent = badgeText;
+    thumb.appendChild(badge);
+  }
+}
+
+function setThumbnailPlaceholder(card, text) {
+  const thumb = card.querySelector('.thumb');
+  thumb.innerHTML = `<div class="thumb-placeholder">${text}</div>`;
+}
+
+function summarizeStatus(rows) {
+  const judged = rows.filter(r => ['ok','ng','warn'].includes(r.status));
+  if (judged.some(r => r.status === 'ng')) return { status: 'ng', text: 'NG' };
+  if (judged.some(r => r.status === 'warn')) return { status: 'warn', text: '要確認' };
+  return { status: 'ok', text: 'OK' };
+}
+
+function detectKind(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  const mime = file.type || '';
+  if (['mp4','mov','m4v'].includes(ext) || mime.startsWith('video/')) return 'video';
+  if (['png','jpg','jpeg'].includes(ext) || mime.startsWith('image/')) return 'image';
+  return 'unknown';
+}
+
+async function handleFiles(files) {
+  for (const file of files) {
+    const kind = detectKind(file);
+    const kindLabel = kind === 'video' ? '動画ファイル' : kind === 'image' ? '静止画ファイル' : '不明なファイル';
+    const card = createResultCard(file.name, kindLabel);
+
+    // サムネイル生成を並行で開始(チェック結果表示をブロックしない)
+    if (kind === 'image') {
+      generateImageThumbnail(file, card).catch(() => setThumbnailPlaceholder(card, '読み込み失敗'));
+    } else if (kind === 'video') {
+      generateVideoThumbnail(file, card).catch(() => setThumbnailPlaceholder(card, 'VIDEO'));
+    } else {
+      setThumbnailPlaceholder(card, '?');
+    }
+
+    try {
+      if (kind === 'video') {
+        const rows = await checkVideo(file);
+        const s = summarizeStatus(rows);
+        updateCard(card, s.status, s.text, rows);
+      } else if (kind === 'image') {
+        const rows = await checkImage(file);
+        const s = summarizeStatus(rows);
+        updateCard(card, s.status, s.text, rows);
+      } else {
+        updateCard(card, 'ng', 'NG', [
+          { label: 'ファイル種別', status: 'ng', value: '未対応のファイル形式です', note: '対応: mp4 / png / jpeg' }
+        ]);
+      }
+    } catch (err) {
+      updateCard(card, 'ng', 'エラー', [
+        { label: 'エラー', status: 'ng', value: err.message || String(err) }
+      ]);
+    }
+  }
+}
+
+// ===== サムネイル生成 =====
+async function generateImageThumbnail(file, card) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = () => reject(new Error('画像の読み込み失敗'));
+      i.src = url;
+    });
+    setThumbnail(card, img, 'IMG');
+  } finally {
+    // imgがDOMにセット済みのため、URLは残しておく必要がある(img要素の削除時にGC)
+    // すぐrevokeすると画像が消える可能性があるため、ここではrevokeしない
+  }
+}
+
+async function generateVideoThumbnail(file, card) {
+  const url = URL.createObjectURL(file);
+  const video = document.createElement('video');
+  video.preload = 'auto';
+  video.muted = true;
+  video.playsInline = true;
+  video.crossOrigin = 'anonymous';
+  video.src = url;
+
+  try {
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('video metadata timeout')), 10000);
+      video.onloadedmetadata = () => { clearTimeout(timer); resolve(); };
+      video.onerror = () => { clearTimeout(timer); reject(new Error('video load error')); };
+    });
+
+    // 最初のフレーム寄り(0.1秒)をシーク
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('seek timeout')), 10000);
+      video.onseeked = () => { clearTimeout(timer); resolve(); };
+      video.onerror = () => { clearTimeout(timer); reject(new Error('video seek error')); };
+      try {
+        video.currentTime = Math.min(0.1, Math.max(0, (video.duration || 1) * 0.01));
+      } catch (e) {
+        clearTimeout(timer);
+        reject(e);
+      }
+    });
+
+    const canvas = document.createElement('canvas');
+    // サムネイル表示枠(120x68)にフィットするサイズに圧縮
+    const w = 240;
+    const h = Math.round((video.videoHeight / video.videoWidth) * w) || 135;
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, w, h);
+    setThumbnail(card, canvas, 'VIDEO');
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+// ===== mp4 コンテナを直接パース =====
+async function parseMp4Metadata(file) {
+  const HEAD_SIZE = Math.min(file.size, 8 * 1024 * 1024);
+  const TAIL_SIZE = Math.min(file.size, 4 * 1024 * 1024);
+
+  let buffer = await file.slice(0, HEAD_SIZE).arrayBuffer();
+  let view = new DataView(buffer);
+
+  let moovOffset = findBoxOffset(view, 0, view.byteLength, 'moov');
+
+  if (moovOffset < 0 && file.size > HEAD_SIZE) {
+    const tailStart = file.size - TAIL_SIZE;
+    buffer = await file.slice(tailStart, file.size).arrayBuffer();
+    view = new DataView(buffer);
+    moovOffset = findBoxOffset(view, 0, view.byteLength, 'moov');
+  }
+
+  if (moovOffset < 0) {
+    throw new Error('moov box が見つかりません(mp4として解析不可)');
+  }
+
+  const moovSize = view.getUint32(moovOffset);
+  const moovEnd = moovOffset + moovSize;
+
+  const meta = {
+    durationSec: null,
+    width: null,
+    height: null,
+    videoCodec: null,
+    audioCodec: null,
+    videoSampleCount: null,
+    videoTrackDurationSec: null,
+  };
+
+  let cursor = moovOffset + 8;
+  const mvhdOffset = findBoxOffset(view, cursor, moovEnd, 'mvhd');
+  if (mvhdOffset >= 0) {
+    const mvhdVersion = view.getUint8(mvhdOffset + 8);
+    let base = mvhdOffset + 8 + 4;
+    if (mvhdVersion === 1) base += 16;
+    else base += 8;
+    const timescale = view.getUint32(base);
+    const duration = mvhdVersion === 1
+      ? Number(view.getBigUint64(base + 4))
+      : view.getUint32(base + 4);
+    if (timescale > 0) meta.durationSec = duration / timescale;
+  }
+
+  let p = cursor;
+  while (p < moovEnd - 8) {
+    const boxSize = view.getUint32(p);
+    const boxType = readType(view, p + 4);
+    if (boxSize < 8) break;
+    if (boxType === 'trak') {
+      parseTrak(view, p + 8, p + boxSize, meta);
+    }
+    p += boxSize;
+  }
+
+  return meta;
+}
+
+function parseTrak(view, start, end, meta) {
+  const mdia = findBoxOffset(view, start, end, 'mdia');
+  if (mdia < 0) return;
+  const mdiaEnd = mdia + view.getUint32(mdia);
+
+  const hdlr = findBoxOffset(view, mdia + 8, mdiaEnd, 'hdlr');
+  let trackKind = null;
+  if (hdlr >= 0) {
+    const handlerType = readType(view, hdlr + 16);
+    if (handlerType === 'vide') trackKind = 'video';
+    else if (handlerType === 'soun') trackKind = 'audio';
+  }
+
+  const mdhd = findBoxOffset(view, mdia + 8, mdiaEnd, 'mdhd');
+  let trackTimescale = 0, trackDuration = 0;
+  if (mdhd >= 0) {
+    const ver = view.getUint8(mdhd + 8);
+    let base = mdhd + 8 + 4;
+    if (ver === 1) base += 16;
+    else base += 8;
+    trackTimescale = view.getUint32(base);
+    trackDuration = ver === 1
+      ? Number(view.getBigUint64(base + 4))
+      : view.getUint32(base + 4);
+  }
+
+  const minf = findBoxOffset(view, mdia + 8, mdiaEnd, 'minf');
+  if (minf < 0) return;
+  const minfEnd = minf + view.getUint32(minf);
+  const stbl = findBoxOffset(view, minf + 8, minfEnd, 'stbl');
+  if (stbl < 0) return;
+  const stblEnd = stbl + view.getUint32(stbl);
+
+  const stsd = findBoxOffset(view, stbl + 8, stblEnd, 'stsd');
+  if (stsd >= 0) {
+    const entryStart = stsd + 16;
+    const codecType = readType(view, entryStart + 4);
+    if (trackKind === 'video') {
+      meta.videoCodec = codecType;
+      const vseBase = entryStart + 8;
+      const width = view.getUint16(vseBase + 24);
+      const height = view.getUint16(vseBase + 26);
+      if (width > 0) meta.width = width;
+      if (height > 0) meta.height = height;
+    } else if (trackKind === 'audio') {
+      meta.audioCodec = codecType;
+    }
+  }
+
+  if (trackKind === 'video') {
+    const stsz = findBoxOffset(view, stbl + 8, stblEnd, 'stsz');
+    if (stsz >= 0) {
+      const sampleCount = view.getUint32(stsz + 16);
+      meta.videoSampleCount = sampleCount;
+    } else {
+      const stz2 = findBoxOffset(view, stbl + 8, stblEnd, 'stz2');
+      if (stz2 >= 0) {
+        const sampleCount = view.getUint32(stz2 + 16);
+        meta.videoSampleCount = sampleCount;
+      }
+    }
+    if (trackTimescale > 0) {
+      meta.videoTrackDurationSec = trackDuration / trackTimescale;
+    }
+  }
+}
+
+function findBoxOffset(view, start, end, targetType) {
+  let p = start;
+  while (p < end - 8) {
+    const size = view.getUint32(p);
+    const type = readType(view, p + 4);
+    if (size < 8) return -1;
+    if (type === targetType) return p;
+    p += size;
+  }
+  return -1;
+}
+
+function readType(view, offset) {
+  return String.fromCharCode(
+    view.getUint8(offset),
+    view.getUint8(offset + 1),
+    view.getUint8(offset + 2),
+    view.getUint8(offset + 3)
+  );
+}
+
+function judgeVideoCodec(code) {
+  if (!code) return { status: 'info', value: '不明' };
+  if (code === 'avc1' || code === 'avc3') {
+    return { status: 'ok', value: `H.264 (${code})` };
+  }
+  const map = { 'hev1': 'HEVC/H.265', 'hvc1': 'HEVC/H.265', 'vp09': 'VP9', 'av01': 'AV1' };
+  if (map[code]) return { status: 'ng', value: map[code] + ` (${code})` };
+  return { status: 'warn', value: code };
+}
+
+function judgeAudioCodec(code) {
+  if (!code) return { status: 'info', value: '不明 (音声トラックなしの可能性)' };
+  if (code === 'mp4a') {
+    return { status: 'ok', value: 'AAC (mp4a)' };
+  }
+  const map = { 'opus': 'Opus', 'Opus': 'Opus', 'ac-3': 'AC-3', 'ec-3': 'E-AC-3' };
+  if (map[code]) return { status: 'ng', value: map[code] + ` (${code})` };
+  return { status: 'warn', value: code };
+}
+
+// ===== 動画チェック =====
+async function checkVideo(file) {
+  const rows = [];
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  if (ext === 'mp4') {
+    rows.push({ label: 'フォーマット', status: 'ok', value: 'mp4形式' });
+  } else {
+    rows.push({ label: 'フォーマット', status: 'ng', value: `${ext}形式`, note: '規定: mp4形式' });
+  }
+
+  if (file.size <= VIDEO_SPECS.maxFileSize) {
+    rows.push({ label: 'ファイルサイズ', status: 'ok', value: formatBytes(file.size), note: '規定: 100MB以下' });
+  } else {
+    rows.push({ label: 'ファイルサイズ', status: 'ng', value: formatBytes(file.size), note: '規定: 100MB以下' });
+  }
+
+  let meta = null;
+  let parseError = null;
+  try {
+    meta = await parseMp4Metadata(file);
+  } catch (e) {
+    parseError = e;
+  }
+
+  if (!meta) {
+    try {
+      const fallback = await loadWithVideoElement(file);
+      meta = {
+        durationSec: fallback.duration,
+        width: fallback.width,
+        height: fallback.height,
+        videoCodec: null,
+        audioCodec: null,
+        videoSampleCount: null,
+        videoTrackDurationSec: fallback.duration,
+      };
+    } catch (e2) {
+      rows.push({ label: '動画解析', status: 'warn', value: '解析できませんでした', note: (parseError?.message || '') + (e2?.message ? ' / ' + e2.message : '') });
+      return rows;
+    }
+  }
+
+  if (meta.width && meta.height) {
+    if (meta.width === VIDEO_SPECS.width && meta.height === VIDEO_SPECS.height) {
+      rows.push({ label: 'サイズ', status: 'ok', value: `${meta.width} × ${meta.height}`, note: '規定: 1920×1080' });
+    } else {
+      rows.push({ label: 'サイズ', status: 'ng', value: `${meta.width} × ${meta.height}`, note: '規定: 1920×1080' });
+    }
+  } else {
+    rows.push({ label: 'サイズ', status: 'warn', value: '取得できませんでした' });
+  }
+
+  if (meta.durationSec) {
+    rows.push({
+      label: '長さ (尺)',
+      status: 'info',
+      value: meta.durationSec.toFixed(2) + '秒',
+      note: '1st Ads: 15〜60秒 / 2nd・3rd・エリア・Targeting・Contents: 15〜30秒 / シートベルト: 15秒以内'
+    });
+  } else {
+    rows.push({ label: '長さ (尺)', status: 'info', value: '取得できませんでした' });
+  }
+
+  if (meta.durationSec) {
+    const bitrate = (file.size * 8) / meta.durationSec;
+    const bitrateMbps = bitrate / 1000000;
+    if (bitrate <= VIDEO_SPECS.recommendedBitrate * 1.1) {
+      rows.push({ label: 'ビットレート (推定)', status: 'ok', value: bitrateMbps.toFixed(2) + ' Mbps', note: '推奨: 4Mbps以下 / ファイルサイズと尺からの推定値' });
+    } else {
+      rows.push({ label: 'ビットレート (推定)', status: 'warn', value: bitrateMbps.toFixed(2) + ' Mbps', note: '推奨: 4Mbps以下 / ファイルサイズと尺からの推定値' });
+    }
+  }
+
+  if (meta.videoSampleCount && meta.videoTrackDurationSec && meta.videoTrackDurationSec > 0) {
+    const fps = meta.videoSampleCount / meta.videoTrackDurationSec;
+    const isValidFps = VIDEO_SPECS.validFps.some(v => Math.abs(fps - v) < VIDEO_SPECS.fpsTolerance);
+    if (isValidFps) {
+      rows.push({ label: 'フレームレート', status: 'ok', value: fps.toFixed(3) + ' fps', note: '規定: 29.97fps または 30fps' });
+    } else {
+      rows.push({ label: 'フレームレート', status: 'warn', value: fps.toFixed(3) + ' fps', note: '規定: 29.97fps または 30fps / 自動補正されて放映される場合あり' });
+    }
+  } else {
+    rows.push({ label: 'フレームレート', status: 'info', value: '計測不可', note: 'サンプル数/尺から算出できず' });
+  }
+
+  const vc = judgeVideoCodec(meta.videoCodec);
+  rows.push({ label: '映像コーデック', status: vc.status, value: vc.value, note: '規定: H.264' });
+
+  const ac = judgeAudioCodec(meta.audioCodec);
+  rows.push({ label: '音声コーデック', status: ac.status, value: ac.value, note: '規定: AAC LC' });
+
+  return rows;
+}
+
+function loadWithVideoElement(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.muted = true;
+    const cleanup = () => { URL.revokeObjectURL(url); };
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('HTMLVideoElementの読み込みタイムアウト'));
+    }, 10000);
+    video.onloadedmetadata = () => {
+      clearTimeout(timer);
+      const result = {
+        width: video.videoWidth,
+        height: video.videoHeight,
+        duration: video.duration,
+      };
+      cleanup();
+      resolve(result);
+    };
+    video.onerror = () => {
+      clearTimeout(timer);
+      cleanup();
+      const err = video.error;
+      reject(new Error('HTMLVideoElement読み込み失敗' + (err ? ` (code ${err.code})` : '')));
+    };
+    video.src = url;
+  });
+}
+
+// ===== 静止画チェック =====
+async function checkImage(file) {
+  const rows = [];
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  if (['png','jpg','jpeg'].includes(ext)) {
+    rows.push({ label: 'フォーマット', status: 'ok', value: `${ext === 'jpg' ? 'jpeg' : ext}形式`, note: '規定: png形式 または jpeg形式' });
+  } else {
+    rows.push({ label: 'フォーマット', status: 'ng', value: `${ext}形式`, note: '規定: png形式 または jpeg形式' });
+  }
+
+  if (file.size <= IMAGE_SPECS.maxFileSize) {
+    rows.push({ label: 'ファイルサイズ', status: 'ok', value: formatBytes(file.size), note: '規定: 600KB以下' });
+  } else {
+    rows.push({ label: 'ファイルサイズ', status: 'ng', value: formatBytes(file.size), note: '規定: 600KB以下' });
+  }
+
+  const url = URL.createObjectURL(file);
+  const size = await new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+    img.onerror = () => reject(new Error('画像の読み込みに失敗しました'));
+    img.src = url;
+  });
+  URL.revokeObjectURL(url);
+
+  if (size.w === IMAGE_SPECS.width && size.h === IMAGE_SPECS.height) {
+    rows.push({ label: 'サイズ', status: 'ok', value: `${size.w} × ${size.h}`, note: '規定: 1920×1080' });
+  } else {
+    rows.push({ label: 'サイズ', status: 'ng', value: `${size.w} × ${size.h}`, note: '規定: 1920×1080' });
+  }
+
+  return rows;
+}
+</script>
+</body>
+</html>
