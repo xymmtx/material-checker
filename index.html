@@ -61,8 +61,6 @@
     align-items: center;
     gap: 14px;
   }
-  
-  /* サムネイル部分にホバーアクションとクリックを促すスタイルを追加 */
   .thumb {
     width: 120px;
     height: 68px;
@@ -74,29 +72,11 @@
     align-items: center;
     justify-content: center;
     position: relative;
-    cursor: pointer;
-    transition: opacity 0.2s;
   }
-  .thumb::after {
-    content: "🔍 再生・拡大";
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  .thumb:hover::after { opacity: 1; }
-  
   .thumb img, .thumb canvas {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     display: block;
   }
   .thumb-placeholder {
@@ -131,14 +111,15 @@
     min-width: 90px;
     text-align: center;
   }
-  .status-ok { background: #16a34a; color: #fff; border-color: #15803d; }
-  .status-ng { background: #dc2626; color: #fff; border-color: #991b1b; }
+  .status-ok   { background: #16a34a; color: #fff; border-color: #15803d; }
+  .status-ng   { background: #dc2626; color: #fff; border-color: #991b1b; }
   .status-warn { background: #f59e0b; color: #fff; border-color: #b45309; }
   .status-loading { background: #e2e3e5; color: #383d41; border-color: #cbd0d6; font-size: 12px; padding: 8px 14px; }
 
-  .result-card.card-ok { border-left: 6px solid #16a34a; }
-  .result-card.card-ng { border-left: 6px solid #dc2626; }
-  .result-card.card-warn { border-left: 6px solid #f59e0b; }
+  /* カード左ボーダー */
+  .result-card.card-ok   { border-left: 4px solid #16a34a; }
+  .result-card.card-ng   { border-left: 4px solid #dc2626; }
+  .result-card.card-warn { border-left: 4px solid #f59e0b; }
 
   .check-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .check-table th, .check-table td {
@@ -147,8 +128,14 @@
     border-bottom: 1px solid #eef0f3;
     vertical-align: top;
   }
-  .check-table th { background: #fafbfc; font-weight: 600; color: #4a5568; width: 170px; }
+  .check-table th {
+    background: #fafbfc;
+    font-weight: 600;
+    color: #4a5568;
+    width: 170px;
+  }
   .check-table tr:last-child th, .check-table tr:last-child td { border-bottom: none; }
+  /* 各行をステータスに応じて背景色で強調 */
   .check-table tr.row-ng td { background: #fef2f2; }
   .check-table tr.row-warn td { background: #fffbeb; }
   .check-table tr.row-ok td { background: #f0fdf4; }
@@ -158,64 +145,187 @@
   .check-warn { color: #b45309; font-weight: 600; }
   .check-info { color: #1a1a1a; font-weight: 600; }
 
+  /* アイコンを◯◯✕!●の色付き円バッジに */
   .check-icon {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 20px; height: 20px; border-radius: 50%;
-    font-size: 12px; font-weight: 700; margin-right: 8px;
-    vertical-align: middle; color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 8px;
+    vertical-align: middle;
+    color: #fff;
   }
   .check-icon.icon-ok { background: #16a34a; }
   .check-icon.icon-ng { background: #dc2626; }
   .check-icon.icon-warn { background: #f59e0b; }
   .check-icon.icon-info { background: #94a3b8; }
 
-  .reason-box { padding: 14px 18px 16px; background: #fafbfc; border-top: 1px solid #e1e3e6; }
-  .reason-header { display: flex; justify-content: flex-start; align-items: center; gap: 12px; margin-bottom: 10px; }
-  .reason-title { font-size: 15px; font-weight: 700; color: #1a1a1a; letter-spacing: 0.02em; }
+  /* NG理由ボックス */
+  .reason-box {
+    padding: 14px 18px 16px;
+    background: #fafbfc;
+    border-top: 1px solid #e1e3e6;
+  }
+  .reason-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .reason-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: 0.02em;
+  }
   .copy-btn {
-    padding: 6px 14px; background: #1a1a1a; color: #fff; border: none; border-radius: 4px;
-    font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit;
+    padding: 6px 14px;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
   }
   .copy-btn:hover { background: #333; }
   .copy-btn.copied { background: #16a34a; }
   .reason-text {
-    background: #fff; border: 1px solid #e1e3e6; border-radius: 4px; padding: 12px 14px;
-    font-size: 13px; line-height: 1.7; color: #1a1a1a; white-space: pre-wrap; word-break: break-all;
-    font-family: inherit; margin: 0;
+    background: #fff;
+    border: 1px solid #e1e3e6;
+    border-radius: 4px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #1a1a1a;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: inherit;
+    margin: 0;
   }
   details { margin-top: 20px; font-size: 13px; }
   summary { cursor: pointer; color: #4a5568; padding: 6px 0; }
-  .spec-table { margin-top: 10px; font-size: 12px; width: 100%; border-collapse: collapse; }
-  .spec-table th, .spec-table td { padding: 6px 10px; border: 1px solid #e1e3e6; text-align: left; }
-  .spec-table th { background: #fafbfc; font-weight: 600; }
+  .spec-table {
+    margin-top: 10px;
+    font-size: 12px;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  .spec-table th, .spec-table td {
+    padding: 6px 10px;
+    border: 1px solid #e1e3e6;
+    text-align: left;
+  }
+  .spec-table th { background: #fafbfc; font-weight: 600; width: 140px; }
+  .spec-section {
+    margin-top: 20px;
+    font-size: 13px;
+    border-top: 1px solid #e1e3e6;
+    padding-top: 16px;
+  }
+  .spec-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 10px;
+  }
 
-  /* プレビュー用モーダルのスタイル */
+  /* モーダル */
   .modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.85);
-    display: none; z-index: 9999; overflow: auto;
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.82);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
   }
-  .modal-overlay.active { display: block; }
-  .modal-wrapper {
-    display: flex; justify-content: center; align-items: flex-start;
-    min-height: 100%; padding: 40px;
-  }
-  .modal-container {
-    position: relative; display: inline-block; background: #000;
-  }
-  .modal-content img, .modal-content video {
-    display: block;
-    /* max-width等を指定せず、元サイズで表示させる */
+  .modal-overlay.open { display: flex; }
+  .modal-inner {
+    position: relative;
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   .modal-close {
-    position: absolute; top: -16px; right: -16px;
-    background: #1a1a1a; color: #fff; border: 2px solid #fff;
-    width: 32px; height: 32px; border-radius: 50%;
-    font-size: 16px; font-weight: bold;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; z-index: 10000; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: #fff;
+    font-size: 28px;
+    line-height: 1;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    transition: background 0.15s;
   }
-  .modal-close:hover { background: #dc2626; }
+  .modal-close:hover { background: rgba(255,255,255,0.3); }
+  .modal-filename {
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+    margin-bottom: 10px;
+    max-width: 90vw;
+    text-align: center;
+    word-break: break-all;
+  }
+  .modal-img {
+    max-width: 90vw;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 4px;
+    display: block;
+  }
+  .modal-video {
+    max-width: 90vw;
+    max-height: 85vh;
+    border-radius: 4px;
+    display: block;
+    background: #000;
+  }
+  .thumb { cursor: pointer; }
+  .thumb:hover { opacity: 0.85; }
+  .thumb-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36px;
+    height: 36px;
+    background: rgba(0,0,0,0.45);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .thumb-play::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 7px 0 7px 13px;
+    border-color: transparent transparent transparent rgba(255,255,255,0.9);
+    margin-left: 3px; /* 視覚的な中央補正 */
+  }
 </style>
 </head>
 <body>
@@ -236,10 +346,9 @@
 
     <div class="results" id="results"></div>
 
-    <details>
-      <summary>入稿規定の詳細を見る</summary>
-      <div style="padding:10px 0;">
-        <b>メイン動画入稿規定</b>
+    <div class="spec-section">
+      <div class="spec-section-title">入稿規定</div>
+      <b>メイン動画入稿規定</b>
         <table class="spec-table">
           <tr><th>フォーマット</th><td>mp4形式</td></tr>
           <tr><th>サイズ</th><td>1080p (W:1920 × H:1080)</td></tr>
@@ -256,33 +365,33 @@
           <tr><th>サイズ</th><td>W:1920 × H:1080</td></tr>
           <tr><th>ファイルサイズ</th><td>600KB以下</td></tr>
         </table>
-      </div>
-    </details>
+    </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="previewModal">
-  <div class="modal-wrapper">
-    <div class="modal-container">
-      <div class="modal-close" id="modalClose">✕</div>
-      <div class="modal-content" id="modalContent"></div>
-    </div>
+<!-- モーダル -->
+<div class="modal-overlay" id="modal">
+  <button class="modal-close" id="modalClose">✕</button>
+  <div class="modal-inner">
+    <div class="modal-filename" id="modalFilename"></div>
+    <img class="modal-img" id="modalImg" src="" alt="" style="display:none;">
+    <video class="modal-video" id="modalVideo" controls style="display:none;"></video>
   </div>
 </div>
 
 <script>
 const VIDEO_SPECS = {
-  maxFileSize: 100 * 1024 * 1024,
+  maxFileSize: 100 * 1024 * 1024,          // 規定: 100MB以下
   width: 1920,
   height: 1080,
-  validFps: [29.97, 30],
-  fpsTolerance: 0.1,
-  recommendedBitrate: 4 * 1000 * 1000,
+  validFps: [29.97, 30],                   // 規定: 29.97fps または 30fps
+  fpsTolerance: 0.1,                       // fps計測の丸め誤差許容値
+  recommendedBitrate: 4 * 1000 * 1000,     // 推奨: 4Mbps以上
 };
 
 const IMAGE_SPECS = {
-  maxFileSize: 600 * 1024,
-  tolerableFileSize: 650 * 1024,
+  maxFileSize: 600 * 1024,      // 規定: 600KB以下
+  tolerableFileSize: 650 * 1024, // 許容範囲: 601〜650KB (OK扱い)
   width: 1920,
   height: 1080,
 };
@@ -291,49 +400,48 @@ const dropzone = document.getElementById('dropzone');
 const fileInput = document.getElementById('fileInput');
 const results = document.getElementById('results');
 
-// === プレビュー用モーダル機能 ===
-const previewModal = document.getElementById('previewModal');
-const modalContent = document.getElementById('modalContent');
+// ===== モーダル =====
+const modal = document.getElementById('modal');
+const modalImg = document.getElementById('modalImg');
+const modalVideo = document.getElementById('modalVideo');
+const modalFilename = document.getElementById('modalFilename');
 const modalClose = document.getElementById('modalClose');
+let modalBlobUrl = null;
 
-function openPreviewModal(file, kind) {
-  modalContent.innerHTML = ''; // クリア
-  const url = URL.createObjectURL(file);
+function openModal(file, kind) {
+  // 前のBlobURLを解放
+  if (modalBlobUrl) { URL.revokeObjectURL(modalBlobUrl); }
+  modalBlobUrl = URL.createObjectURL(file);
+  modalFilename.textContent = file.name;
 
   if (kind === 'image') {
-    const img = document.createElement('img');
-    img.src = url;
-    modalContent.appendChild(img);
-  } else if (kind === 'video') {
-    const video = document.createElement('video');
-    video.src = url;
-    video.controls = true;
-    video.autoplay = true;
-    modalContent.appendChild(video);
+    modalImg.src = modalBlobUrl;
+    modalImg.style.display = 'block';
+    modalVideo.style.display = 'none';
+    modalVideo.pause();
+    modalVideo.src = '';
+  } else {
+    modalVideo.src = modalBlobUrl;
+    modalVideo.style.display = 'block';
+    modalImg.style.display = 'none';
+    modalImg.src = '';
   }
-
-  previewModal.classList.add('active');
-  previewModal.dataset.blobUrl = url; // 閉じる時に解放するため保持
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
-function closePreviewModal() {
-  previewModal.classList.remove('active');
-  modalContent.innerHTML = ''; // 破棄して動画の再生を止める
-  const url = previewModal.dataset.blobUrl;
-  if (url) {
-    URL.revokeObjectURL(url);
-    delete previewModal.dataset.blobUrl;
-  }
+function closeModal() {
+  modal.classList.remove('open');
+  document.body.style.overflow = '';
+  modalVideo.pause();
+  modalVideo.src = '';
+  modalImg.src = '';
+  if (modalBlobUrl) { URL.revokeObjectURL(modalBlobUrl); modalBlobUrl = null; }
 }
 
-modalClose.addEventListener('click', closePreviewModal);
-previewModal.addEventListener('click', (e) => {
-  // 背景クリックで閉じる
-  if (e.target.classList.contains('modal-wrapper') || e.target.classList.contains('modal-overlay')) {
-    closePreviewModal();
-  }
-});
-// =================================
+modalClose.addEventListener('click', closeModal);
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 
 ['dragenter','dragover'].forEach(ev => {
@@ -349,7 +457,7 @@ dropzone.addEventListener('drop', e => {
 dropzone.addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', e => {
   handleFiles(Array.from(e.target.files));
-  e.target.value = ''; 
+  e.target.value = ''; // 同じファイルを再選択しても change が発火するようにリセット
 });
 
 function formatBytes(bytes) {
@@ -358,6 +466,7 @@ function formatBytes(bytes) {
   return (bytes/1024/1024).toFixed(2) + ' MB';
 }
 
+// HTML特殊文字をエスケープ (XSS対策)
 function escapeHtml(str) {
   if (str == null) return '';
   return String(str)
@@ -373,7 +482,7 @@ function createResultCard(fileName, kind) {
   card.className = 'result-card';
   card.innerHTML = `
     <div class="result-header">
-      <div class="thumb" title="クリックで再生・原寸大表示"><div class="thumb-placeholder">読み込み中...</div></div>
+      <div class="thumb"><div class="thumb-placeholder">読み込み中...</div></div>
       <div class="file-info">
         <div class="file-name">${escapeHtml(fileName)}</div>
         <div class="file-kind">${escapeHtml(kind)}</div>
@@ -394,6 +503,7 @@ function updateCard(card, status, statusText, rows, fileName) {
   badge.className = 'status-badge status-' + status;
   badge.textContent = statusText;
 
+  // カード全体にステータスクラスを付与(左ボーダー用)+ data属性(並び替え用)
   card.classList.remove('card-ok','card-ng','card-warn');
   card.classList.add('card-' + status);
   card.dataset.status = status;
@@ -409,21 +519,11 @@ function updateCard(card, status, statusText, rows, fileName) {
     </tr>
   `).join('');
 
+  // NG理由ボックスを組み立て
   renderReasonBox(card, rows, fileName);
-  sortResultCards();
 }
 
-function sortResultCards() {
-  const order = { ng: 0, warn: 1, ok: 2, loading: 3 };
-  const cards = Array.from(results.querySelectorAll('.result-card'));
-  cards.sort((a, b) => {
-    const sa = order[a.dataset.status] ?? 3;
-    const sb = order[b.dataset.status] ?? 3;
-    return sa - sb;
-  });
-  cards.forEach(card => results.appendChild(card));
-}
-
+// NG項目がある場合のみ入稿者向けのテキストを生成(要確認のみ/OKのみでは非表示)
 function renderReasonBox(card, rows, fileName) {
   const reasonBox = card.querySelector('.reason-box');
   const ngRows = rows.filter(r => r.status === 'ng');
@@ -434,10 +534,16 @@ function renderReasonBox(card, rows, fileName) {
     return;
   }
 
+  // NG行のnoteから「規定: XXX / (補足)」パターンを抽出して規定値だけ取り出す
+  // 例: "規定: mp4形式" → "mp4形式"
+  // 例: "規定: 1920×1080" → "1920×1080"
   const buildLine = (r) => {
     let regulation = '';
     if (r.note) {
-      regulation = r.note.replace(/^規定:\s*/, '').replace(/\s*\/.*$/, '');
+      // 「規定: 」プレフィックスを除去し、「 / 」以降の補足を除去
+      regulation = r.note
+        .replace(/^規定:\s*/, '')
+        .replace(/\s*\/.*$/, '');
     }
     return `・${r.label}:${r.value}(規定:${regulation || r.note || '-'})`;
   };
@@ -475,6 +581,7 @@ function renderReasonBox(card, rows, fileName) {
         copyBtn.classList.remove('copied');
       }, 2000);
     }).catch(() => {
+      // フォールバック:テキストエリア経由
       const ta = document.createElement('textarea');
       ta.value = reasonText;
       document.body.appendChild(ta);
@@ -487,6 +594,7 @@ function renderReasonBox(card, rows, fileName) {
   });
 }
 
+// サムネイルをセット(img/canvas要素と、右下のバッジ文言)
 function setThumbnail(card, element, badgeText) {
   const thumb = card.querySelector('.thumb');
   thumb.innerHTML = '';
@@ -497,6 +605,16 @@ function setThumbnail(card, element, badgeText) {
     badge.textContent = badgeText;
     thumb.appendChild(badge);
   }
+  // 動画サムネイルには再生アイコンを重ねる
+  if (badgeText === 'VIDEO') {
+    const play = document.createElement('div');
+    play.className = 'thumb-play';
+    thumb.appendChild(play);
+  }
+  // クリックでモーダルを開く
+  thumb.onclick = () => {
+    if (card._file) openModal(card._file, card._kind);
+  };
 }
 
 function setThumbnailPlaceholder(card, text) {
@@ -507,7 +625,13 @@ function setThumbnailPlaceholder(card, text) {
 function summarizeStatus(rows) {
   const judged = rows.filter(r => ['ok','ng','warn'].includes(r.status));
   if (judged.some(r => r.status === 'ng')) return { status: 'ng', text: 'NG' };
-  if (judged.some(r => r.status === 'warn')) return { status: 'warn', text: '要確認' };
+  const warnRows = judged.filter(r => r.status === 'warn');
+  if (warnRows.length > 0) {
+    // ビットレートのみが要確認の場合は全体をOKとする
+    const isOnlyBitrate = warnRows.every(r => r.label === 'ビットレート (推定)');
+    if (isOnlyBitrate) return { status: 'ok', text: 'OK' };
+    return { status: 'warn', text: '要確認' };
+  }
   return { status: 'ok', text: 'OK' };
 }
 
@@ -527,20 +651,17 @@ const KIND_LABELS = {
 
 async function handleFiles(files) {
   if (!files || files.length === 0) return;
+
+  // 新規ファイル投入時は前回の結果を全てクリア
   results.innerHTML = '';
 
   for (const file of files) {
     const kind = detectKind(file);
     const card = createResultCard(file.name, KIND_LABELS[kind]);
+    card._file = file;   // モーダル用にfileを保持
+    card._kind = kind;
 
-    // 追加: サムネイルクリックでプレビューを開くイベントを登録
-    const thumbEl = card.querySelector('.thumb');
-    thumbEl.addEventListener('click', () => {
-      if (kind === 'image' || kind === 'video') {
-        openPreviewModal(file, kind);
-      }
-    });
-
+    // サムネイル生成を並行で開始(チェック結果表示をブロックしない)
     if (kind === 'image') {
       generateImageThumbnail(file, card).catch(() => setThumbnailPlaceholder(card, '読み込み失敗'));
     } else if (kind === 'video') {
@@ -571,6 +692,7 @@ async function handleFiles(files) {
   }
 }
 
+// ===== サムネイル生成 =====
 async function generateImageThumbnail(file, card) {
   const url = URL.createObjectURL(file);
   try {
@@ -582,10 +704,8 @@ async function generateImageThumbnail(file, card) {
       i.src = url;
     });
     setThumbnail(card, img, 'IMG');
+  } finally {
     URL.revokeObjectURL(url);
-  } catch (e) {
-    URL.revokeObjectURL(url);
-    throw e;
   }
 }
 
@@ -598,6 +718,7 @@ async function generateVideoThumbnail(file, card) {
   video.src = url;
 
   try {
+    // メタデータ読み込み
     await new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('video metadata timeout')), 10000);
       const onLoaded = () => { cleanup(); resolve(); };
@@ -611,6 +732,7 @@ async function generateVideoThumbnail(file, card) {
       video.addEventListener('error', onError);
     });
 
+    // 最初のフレーム寄り(0.1秒)へシーク
     await new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('seek timeout')), 10000);
       const onSeeked = () => { cleanup(); resolve(); };
@@ -630,6 +752,7 @@ async function generateVideoThumbnail(file, card) {
       }
     });
 
+    // Canvasに描画
     const w = 240;
     const h = Math.round((video.videoHeight / video.videoWidth) * w) || 135;
     const canvas = document.createElement('canvas');
@@ -639,11 +762,12 @@ async function generateVideoThumbnail(file, card) {
     setThumbnail(card, canvas, 'VIDEO');
   } finally {
     video.removeAttribute('src');
-    video.load();
+    video.load();  // バッファ解放
     URL.revokeObjectURL(url);
   }
 }
 
+// ===== mp4 コンテナを直接パース =====
 async function parseMp4Metadata(file) {
   const HEAD_SIZE = Math.min(file.size, 8 * 1024 * 1024);
   const TAIL_SIZE = Math.min(file.size, 4 * 1024 * 1024);
@@ -813,20 +937,16 @@ function judgeAudioCodec(code) {
   return { status: 'warn', value: code };
 }
 
+// ===== 動画チェック =====
 async function checkVideo(file) {
   const rows = [];
   const ext = file.name.split('.').pop().toLowerCase();
 
+  // フォーマット
   if (ext === 'mp4') {
     rows.push({ label: 'フォーマット', status: 'ok', value: 'mp4形式' });
   } else {
     rows.push({ label: 'フォーマット', status: 'ng', value: `${ext}形式`, note: '規定: mp4形式' });
-  }
-
-  if (file.size <= VIDEO_SPECS.maxFileSize) {
-    rows.push({ label: 'ファイルサイズ', status: 'ok', value: formatBytes(file.size), note: '規定: 100MB以下' });
-  } else {
-    rows.push({ label: 'ファイルサイズ', status: 'ng', value: formatBytes(file.size), note: '規定: 100MB以下' });
   }
 
   let meta = null;
@@ -846,8 +966,8 @@ async function checkVideo(file) {
         height: fallback.height,
         videoCodec: null,
         audioCodec: null,
-        videoSampleCount: null,
-        videoTrackDurationSec: null,
+        videoSampleCount: null,      // フォールバック時はサンプル数取得不可
+        videoTrackDurationSec: null, // 同上
       };
     } catch (e2) {
       rows.push({ label: '動画解析', status: 'warn', value: '解析できませんでした', note: (parseError?.message || '') + (e2?.message ? ' / ' + e2.message : '') });
@@ -855,16 +975,7 @@ async function checkVideo(file) {
     }
   }
 
-  if (meta.width && meta.height) {
-    if (meta.width === VIDEO_SPECS.width && meta.height === VIDEO_SPECS.height) {
-      rows.push({ label: 'サイズ', status: 'ok', value: `${meta.width} × ${meta.height}`, note: '規定: 1920×1080' });
-    } else {
-      rows.push({ label: 'サイズ', status: 'ng', value: `${meta.width} × ${meta.height}`, note: '規定: 1920×1080' });
-    }
-  } else {
-    rows.push({ label: 'サイズ', status: 'warn', value: '取得できませんでした' });
-  }
-
+  // 長さ
   if (meta.durationSec) {
     rows.push({
       label: '長さ (尺)',
@@ -876,16 +987,33 @@ async function checkVideo(file) {
     rows.push({ label: '長さ (尺)', status: 'info', value: '取得できませんでした' });
   }
 
-  if (meta.durationSec) {
-    const bitrate = (file.size * 8) / meta.durationSec;
-    const bitrateMbps = bitrate / 1000000;
-    if (bitrate >= VIDEO_SPECS.recommendedBitrate) {
-      rows.push({ label: 'ビットレート (推定)', status: 'ok', value: bitrateMbps.toFixed(2) + ' Mbps', note: '推奨: 4Mbps以上 / ファイルサイズと尺からの推定値' });
+  // サイズ
+  if (meta.width && meta.height) {
+    if (meta.width === VIDEO_SPECS.width && meta.height === VIDEO_SPECS.height) {
+      rows.push({ label: 'サイズ', status: 'ok', value: `${meta.width} × ${meta.height}`, note: '規定: 1920×1080' });
     } else {
-      rows.push({ label: 'ビットレート (推定)', status: 'warn', value: bitrateMbps.toFixed(2) + ' Mbps', note: '推奨: 4Mbps以上 / 下回ると映像品質が低下する可能性があります / ファイルサイズと尺からの推定値' });
+      rows.push({ label: 'サイズ', status: 'ng', value: `${meta.width} × ${meta.height}`, note: '規定: 1920×1080' });
     }
+  } else {
+    rows.push({ label: 'サイズ', status: 'warn', value: '取得できませんでした' });
   }
 
+  // ファイルサイズ
+  if (file.size <= VIDEO_SPECS.maxFileSize) {
+    rows.push({ label: 'ファイルサイズ', status: 'ok', value: formatBytes(file.size), note: '規定: 100MB以下' });
+  } else {
+    rows.push({ label: 'ファイルサイズ', status: 'ng', value: formatBytes(file.size), note: '規定: 100MB以下' });
+  }
+
+  // 映像コーデック
+  const vc = judgeVideoCodec(meta.videoCodec);
+  rows.push({ label: '映像コーデック', status: vc.status, value: vc.value, note: '規定: H.264' });
+
+  // 音声コーデック
+  const ac = judgeAudioCodec(meta.audioCodec);
+  rows.push({ label: '音声コーデック', status: ac.status, value: ac.value, note: '規定: AAC LC' });
+
+  // フレームレート
   if (meta.videoSampleCount && meta.videoTrackDurationSec && meta.videoTrackDurationSec > 0) {
     const fps = meta.videoSampleCount / meta.videoTrackDurationSec;
     const isValidFps = VIDEO_SPECS.validFps.some(v => Math.abs(fps - v) < VIDEO_SPECS.fpsTolerance);
@@ -898,11 +1026,17 @@ async function checkVideo(file) {
     rows.push({ label: 'フレームレート', status: 'info', value: '計測不可', note: 'サンプル数/尺から算出できず' });
   }
 
-  const vc = judgeVideoCodec(meta.videoCodec);
-  rows.push({ label: '映像コーデック', status: vc.status, value: vc.value, note: '規定: H.264' });
-
-  const ac = judgeAudioCodec(meta.audioCodec);
-  rows.push({ label: '音声コーデック', status: ac.status, value: ac.value, note: '規定: AAC LC' });
+  // ビットレート
+  if (meta.durationSec) {
+    const bitrate = (file.size * 8) / meta.durationSec;
+    const bitrateMbps = bitrate / 1000000;
+    // 規定: 4Mbps推奨(4Mbps以上ないと綺麗に映らない)
+    if (bitrate >= VIDEO_SPECS.recommendedBitrate) {
+      rows.push({ label: 'ビットレート (推定)', status: 'ok', value: bitrateMbps.toFixed(2) + ' Mbps', note: '推奨: 4Mbps以上 / ファイルサイズと尺からの推定値' });
+    } else {
+      rows.push({ label: 'ビットレート (推定)', status: 'warn', value: bitrateMbps.toFixed(2) + ' Mbps', note: '推奨: 4Mbps以上 / 下回ると映像品質が低下する可能性があります / ファイルサイズと尺からの推定値' });
+    }
+  }
 
   return rows;
 }
@@ -938,6 +1072,7 @@ function loadWithVideoElement(file) {
   });
 }
 
+// ===== 静止画チェック =====
 async function checkImage(file) {
   const rows = [];
   const ext = file.name.split('.').pop().toLowerCase();
@@ -956,6 +1091,7 @@ async function checkImage(file) {
     rows.push({ label: 'ファイルサイズ', status: 'ng', value: formatBytes(file.size), note: '規定: 600KB以下' });
   }
 
+  // 解像度取得は失敗しうるので個別にtry/catchし、他の判定結果を残す
   const url = URL.createObjectURL(file);
   try {
     const size = await new Promise((resolve, reject) => {
